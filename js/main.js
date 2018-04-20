@@ -5,11 +5,14 @@ const grassW = 142, grassH = 42;
 const playerH = 110, playerW = 100, playerStep = 5;
 const leftKey = 37, rightKey = 39, upKey = 38;
 
+const monsterH = 110, monsterW = 100;
+let monsterX = cnvWidth - monsterW*2, monsterY = cnvHeight - grassH - monsterH + 10,
+		monsterStep = 3, monsterLives = 100;
 
 let canvas, ctx;
-let img, grass, playerLeft, playerRight;
+let img, grass, playerLeft, playerRight, monsterLeft, monsterRight;
 
-let walkY = cnvHeight - grassH - playerH, playerX = 0, playerY = walkY;
+let walkY = cnvHeight - grassH - playerH, playerX = 0, playerY = walkY, playerDamage = 20;
 let rightPressed = false, leftPressed = false, upPressed = false, toLeft = false, toRight = false;
 
 window.addEventListener('load', () => {
@@ -40,11 +43,11 @@ window.addEventListener('load', () => {
 		{
 			rightPressed = false;
 		}
-		else if (e.keyCode == leftKey)
+		if (e.keyCode == leftKey)
 		{
 			leftPressed = false;
 		}
-		else if (e.keyCode == upKey)
+		if (e.keyCode == upKey)
 		{
 			upPressed = false;
 		}
@@ -67,12 +70,20 @@ function init() {
 
 	playerRight = new Image();
 	playerRight.src = "./img/playerR.png";
+	
+	monsterLeft = new Image();
+	monsterLeft.src = "./img/monsterL.png";
+
+	monsterRight = new Image();
+	monsterRight.src = "./img/monsterR.png";
 }
 
 function draw() {
 	drawBackground();
 	drawPlatform();
 	drawPlayer();
+	drawMonster();
+	drawMonsterLives();
 
 	if (rightPressed && playerX + playerW < cnvWidth)
 	{
@@ -82,10 +93,30 @@ function draw() {
 	{
 		playerX -= playerStep;
 	} 
-	else if (upPressed)
+
+	if (upPressed)
 	{
-		playerY += 10;
+		playerY -= playerStep;
 	}
+	
+	if (upPressed && rightPressed && playerX + playerW < cnvWidth)
+	{
+		playerY -= playerStep;
+		playerX += playerStep;
+	}
+
+	if (upPressed && leftPressed && playerX > 0)
+	{
+		playerY -= playerStep;
+		playerX -= playerStep;
+	}
+
+	if (!upPressed && walkY != playerY)
+	{
+		playerY = walkY;
+	}
+
+
 
 	requestAnimationFrame(draw);
 }
@@ -115,10 +146,27 @@ function drawPlatform() {
 function drawPlayer() {
 	if (toLeft)
 	{
-		ctx.drawImage(playerLeft, playerX, walkY, playerW, playerH);
+		ctx.drawImage(playerLeft, playerX, playerY, playerW, playerH);
 	}
 	else
 	{
-		ctx.drawImage(playerRight, playerX, walkY, playerW, playerH);
+		ctx.drawImage(playerRight, playerX, playerY, playerW, playerH);
 	}
+}
+
+function drawMonster() {
+	if (toLeft)
+	{
+		ctx.drawImage(monsterRight, monsterX, monsterY, monsterW, monsterH);
+	} 
+	else 
+	{
+		ctx.drawImage(monsterLeft, monsterX, monsterY, monsterW, monsterH);
+	}
+}
+
+function drawMonsterLives() {
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "#4286f4";
+	ctx.fillText("Monster lives: " + monsterLives, 10, 50);
 }
