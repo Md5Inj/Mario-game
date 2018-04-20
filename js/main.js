@@ -12,8 +12,9 @@ let monsterX = cnvWidth - monsterW*2, monsterY = cnvHeight - grassH - monsterH +
 let canvas, ctx;
 let img, grass, playerLeft, playerRight, monsterLeft, monsterRight;
 
-let walkY = cnvHeight - grassH - playerH, playerX = 0, playerY = walkY, playerDamage = 20;
-let rightPressed = false, leftPressed = false, upPressed = false, toLeft = false, toRight = true;
+let walkY = cnvHeight - grassH - playerH, playerX = 0, playerY = walkY, playerDamage = 20,
+		playerLives = 100;
+let rightPressed = false, leftPressed = false, upPressed = false, toLeft = false, toRight = false;
 
 window.addEventListener('load', () => {
 	init();
@@ -79,11 +80,13 @@ function init() {
 }
 
 function draw() {
+	if (playerLives <= 30) ctx.globalAlpha = 0.5;
 	drawBackground();
 	drawPlatform();
 	drawPlayer();
 	drawMonster();
 	drawMonsterLives();
+	drawPlayerLives();
 
 	if (rightPressed && playerX + playerW < cnvWidth)
 	{
@@ -99,13 +102,13 @@ function draw() {
 		playerY -= playerStep;
 	}
 	
-	if (upPressed && rightPressed && playerX + playerW < cnvWidth)
+	if (upPressed && rightPressed && playerX + playerW < cnvWidth && playerY < cnvHeight + playerH)
 	{
 		playerY -= playerStep;
 		playerX += playerStep;
 	}
 
-	if (upPressed && leftPressed && playerX > 0)
+	if (upPressed && leftPressed && playerX > 0 )
 	{
 		playerY -= playerStep;
 		playerX -= playerStep;
@@ -127,6 +130,28 @@ function draw() {
 
 	if (monsterX + monsterW < cnvWidth && monsterX > 0) monsterX += monsterStep;
 	
+	if (playerLives > 0 && monsterLives > 0)
+	{
+		if (playerX >= monsterX && playerX <= monsterX + monsterW && playerY >= grassH + monsterH && playerY <= grassH + monsterH + 20)
+		{
+			monsterLives -= 10;
+		} 
+		else if (playerX + playerW >= monsterX && playerX <= monsterX + monsterW && playerY >= grassH + monsterH) 
+		{
+			playerLives -= 7;
+			ctx.save();
+			doRed();
+			setTimeout(() => { ctx.reset(); }, 5000);
+		}
+	}
+	else {
+		if (monsterLives <= 0)
+		{
+			Win();
+		} else {
+			Loose();
+		}
+	}
 
 	requestAnimationFrame(draw);
 }
@@ -169,8 +194,10 @@ function drawMonster() {
 	{
 		ctx.drawImage(monsterRight, monsterX, monsterY, monsterW, monsterH);
 	} 
-	if (toLeft && playerX < monsterX)
+	else if (toLeft && playerX < monsterX)
 	{
+		ctx.drawImage(monsterLeft, monsterX, monsterY, monsterW, monsterH);
+	} else {
 		ctx.drawImage(monsterLeft, monsterX, monsterY, monsterW, monsterH);
 	}
 }
@@ -178,5 +205,35 @@ function drawMonster() {
 function drawMonsterLives() {
 	ctx.font = "30px Arial";
 	ctx.fillStyle = "#4286f4";
+	ctx.strokeText("Monster lives: " + monsterLives, 10, 50);
 	ctx.fillText("Monster lives: " + monsterLives, 10, 50);
+}
+
+function drawPlayerLives() {
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "red";
+	ctx.strokeText("Your lives: " + playerLives, cnvWidth / 1.35, 50);
+	ctx.fillText("Your lives: " + playerLives, cnvWidth / 1.35, 50);
+}
+
+function doRed() {
+	ctx.beginPath();
+	ctx.rect(0, 0, cnvWidth, cnvHeight);
+	ctx.fillStyle = "rgb(255, 0, 0, .4)";
+	ctx.fill();
+	ctx.closePath();
+}
+
+function Loose() {
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "red";
+	ctx.strokeText("You LOOSER ", cnvWidth / 2 - 100, cnvHeight / 2);
+	ctx.fillText("You LOOSER ", cnvWidth / 2 - 100, cnvHeight / 2);
+}
+
+function Win() {
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "green";
+	ctx.strokeText("You win!! ", cnvWidth / 2 - 100, cnvHeight / 2);
+	ctx.fillText("You win!!", cnvWidth / 2 - 100, cnvHeight / 2);
 }
