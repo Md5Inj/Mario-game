@@ -9,6 +9,8 @@ const monsterH = 110, monsterW = 100, defaultMonsterStep = 3;
 let monsterX = cnvWidth - monsterW*2, monsterY = cnvHeight - grassH - monsterH + 10,
 		monsterStep = 3, monsterLives = 100;
 
+let time = performance.now();
+
 let canvas, ctx;
 let img, grass, playerLeft, playerRight, monsterLeft, monsterRight;
 
@@ -87,6 +89,7 @@ function draw() {
 	drawMonster();
 	drawMonsterLives();
 	drawPlayerLives();
+	printTime();
 
 	if (rightPressed && playerX + playerW < cnvWidth)
 	{
@@ -231,9 +234,18 @@ function Loose() {
 	ctx.fillText("You LOOSER ", cnvWidth / 2 - 100, cnvHeight / 2);
 }
 
-function Win() {
+function Win() 
+{
 	ctx.font = "30px Arial";
 	ctx.fillStyle = "green";
 	ctx.strokeText("You win!! ", cnvWidth / 2 - 100, cnvHeight / 2);
 	ctx.fillText("You win!!", cnvWidth / 2 - 100, cnvHeight / 2);
+}
+
+function printTime() 
+{
+	ctx.font = "30px Arial";
+	ctx.fillStyle = "white";
+	ctx.strokeText((performance.now() - time) / 1000 + " s", cnvWidth / 2 - 60, 50);
+	ctx.fillText((performance.now() - time) / 1000 + " s", cnvWidth / 2 - 60, 50);
 }
