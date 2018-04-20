@@ -5,7 +5,7 @@ const grassW = 142, grassH = 42;
 const playerH = 110, playerW = 100, playerStep = 5;
 const leftKey = 37, rightKey = 39, upKey = 38;
 
-const monsterH = 110, monsterW = 100;
+const monsterH = 110, monsterW = 100, defaultMonsterStep = 3;
 let monsterX = cnvWidth - monsterW*2, monsterY = cnvHeight - grassH - monsterH + 10,
 		monsterStep = 3, monsterLives = 100;
 
@@ -13,7 +13,7 @@ let canvas, ctx;
 let img, grass, playerLeft, playerRight, monsterLeft, monsterRight;
 
 let walkY = cnvHeight - grassH - playerH, playerX = 0, playerY = walkY, playerDamage = 20;
-let rightPressed = false, leftPressed = false, upPressed = false, toLeft = false, toRight = false;
+let rightPressed = false, leftPressed = false, upPressed = false, toLeft = false, toRight = true;
 
 window.addEventListener('load', () => {
 	init();
@@ -116,7 +116,17 @@ function draw() {
 		playerY = walkY;
 	}
 
+	if (monsterX > playerX)
+	{
+		monsterStep = -defaultMonsterStep;
+	}
+	else if (monsterX < playerX)
+	{
+		monsterStep = defaultMonsterStep;
+	}
 
+	if (monsterX + monsterW < cnvWidth && monsterX > 0) monsterX += monsterStep;
+	
 
 	requestAnimationFrame(draw);
 }
@@ -155,11 +165,11 @@ function drawPlayer() {
 }
 
 function drawMonster() {
-	if (toLeft)
+	if (toRight && playerX > monsterX)
 	{
 		ctx.drawImage(monsterRight, monsterX, monsterY, monsterW, monsterH);
 	} 
-	else 
+	if (toLeft && playerX < monsterX)
 	{
 		ctx.drawImage(monsterLeft, monsterX, monsterY, monsterW, monsterH);
 	}
